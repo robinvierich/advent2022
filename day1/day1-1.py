@@ -1,12 +1,12 @@
 
 
 class FoodInventory:
-    elf_calories = {}
-
-    max_calories = 1
-    i_elf_max_calories = -1
 
     def __init__(self, lines):
+        self.elf_calories = {}
+        self.max_calories = 1
+        self.i_elf_max_calories = -1
+
         current_elf_calorie_sum = 0
         i_elf = 0
 

@@ -43,8 +43,6 @@ def binary_search(items, item):
 
 
 class Rucksack:
-    compartments = None
-
     def __init__(self, line):
         clean_line = line.strip()
         num_items = len(clean_line)

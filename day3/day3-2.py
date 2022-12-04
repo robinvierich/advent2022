@@ -66,9 +66,6 @@ def get_common_items_in_compartments(compartments_with_sorted_items = []):
 
 
 class Rucksack:
-    all_items_sorted = None
-    compartments = None
-
     def __init__(self, line):
         clean_line = line.strip()
         num_items = len(clean_line)

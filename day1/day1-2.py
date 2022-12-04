@@ -24,13 +24,14 @@ class Leaderboard:
 
 
 class FoodInventory:
-    elf_calories = {}
 
-    calorie_leaderboard = Leaderboard(3)
 
     def __init__(self, lines):
         current_elf_calorie_sum = 0
         i_elf = 0
+
+        self.elf_calories = {}
+        self.calorie_leaderboard = Leaderboard(3)
 
 
         for line in lines:

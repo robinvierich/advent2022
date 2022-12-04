@@ -61,9 +61,6 @@ def get_my_round_result_score(round_result):
 
 
 class RpsRound:
-    my_shape = Shape.UNKNOWN
-    op_shape = Shape.UNKNOWN
-
     def __init__(self, strategy_guide_line):
 
         op_shape_str, my_shape_str = strategy_guide_line.strip("\n").split(" ")
@@ -96,8 +93,6 @@ class RpsRound:
 
 
 class RpsStrategyGuide:
-    rounds = None
-
     def __init__(self, lines):
 
         self.rounds = tuple(RpsRound(line) for line in lines)
