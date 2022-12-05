@@ -10,10 +10,10 @@ class CraneInstruction:
     instr_format = "move {:d} from {:d} to {:d}" 
 
     def __init__(self, instruction_str) -> None:
-        self.num_to_move, self.from_stack, self.to_stack = parse(CraneInstruction.instr_format, instruction_str)
+        self.num_to_move, self.from_stack_id, self.to_stack_id = parse(CraneInstruction.instr_format, instruction_str)
 
     def __str__(self) -> str:
-        return CraneInstruction.instr_format.format(self.num_to_move, self.from_stack, self.to_stack)
+        return CraneInstruction.instr_format.format(self.num_to_move, self.from_stack_id, self.to_stack_id)
 
 
 class CargoState:
@@ -34,7 +34,7 @@ class CargoState:
 
         for col, stack_id_str in enumerate(stack_id_strs):
             if stack_id_str != " ":
-                self.stack_ids.append(stack_id_str)
+                self.stack_ids.append(int(stack_id_str))
                 self.stacks.append([])
 
                 columns.append(col)
@@ -53,6 +53,13 @@ class CargoState:
                     # we are looping in reverse here, so we can just push to the stack
                     self.stacks[i_stack].append(crate_at_col)
     
+    def get_stack_from_id(self, stack_id):
+
+        i_stack = self.stack_ids.index(stack_id)
+
+        return self.stacks[i_stack]
+        
+    
     def __str__(self) -> str:
 
         stack_strs = ["{i}  {stacks}".format(i = self.stack_ids[i], stacks = " ".join(stack)) for i, stack in enumerate(self.stacks)]
@@ -60,9 +67,21 @@ class CargoState:
         return "\n".join(stack_strs)
 
 
+def apply_instruction(cargo_state, instr):
+
+    from_stack = cargo_state.get_stack_from_id(instr.from_stack_id)
+    to_stack = cargo_state.get_stack_from_id(instr.to_stack_id)
+
+    for i in range(instr.num_to_move):
+        if len(from_stack) > 0:
+            to_stack.append(from_stack.pop())
+    
+    return cargo_state
+
+
 
 def main():
-    lines = read_input_lines(__file__, InputType.SAMPLE_INPUT)
+    lines = read_input_lines(__file__, InputType.REAL_INPUT)
 
     cargo_strs = []
     instr_strs = []
@@ -87,10 +106,11 @@ def main():
     print("cargo state: \n{cargo_state}".format(cargo_state = str(cargo_state)))
     print("instructions: \n{instructions}".format(instructions = "\n".join(str(crane_instr) for crane_instr in crane_instructions)))
 
-    
+    for instr in crane_instructions:
+        cargo_state = apply_instruction(cargo_state, instr)
 
 
-        
+    print("cargo state: \n{cargo_state}".format(cargo_state = str(cargo_state)))
 
 
 
