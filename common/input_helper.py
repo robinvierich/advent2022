@@ -4,6 +4,8 @@ class InputType(Enum):
     SAMPLE_INPUT = 1,
     REAL_INPUT = 2
 
+def is_empty_line(line):
+    return line.strip() == "" 
 
 def read_input_lines(executing_file_path, input_type):
 
