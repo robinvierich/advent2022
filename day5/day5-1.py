@@ -3,13 +3,17 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.input_helper import InputType, read_input_lines, is_empty_line
 
-from thirdparty.parse import parse
+from thirdparty.parse.parse import *
 
 
 class CraneInstruction:
+    instr_format = "move {:d} from {:d} to {:d}" 
 
     def __init__(self, instruction_str) -> None:
-        self.num_to_move, self.from_stack, self.to_stack = parse("move {:d} from {:d} to {:d}", instruction_str)
+        self.num_to_move, self.from_stack, self.to_stack = parse(CraneInstruction.instr_format, instruction_str)
+
+    def __str__(self) -> str:
+        return CraneInstruction.instr_format.format(self.num_to_move, self.from_stack, self.to_stack)
 
 
 class CargoState:
@@ -77,10 +81,11 @@ def main():
             instr_strs.append(line.strip('\n'))
     
     cargo_state = CargoState(cargo_strs)
-    #crane_instructions = tuple(CraneInstruction(instr_str) for instr_str in instr_strs)
+    crane_instructions = tuple(CraneInstruction(instr_str) for instr_str in instr_strs)
 
 
     print("cargo state: \n{cargo_state}".format(cargo_state = str(cargo_state)))
+    print("instructions: \n{instructions}".format(instructions = "\n".join(str(crane_instr) for crane_instr in crane_instructions)))
 
     
 
