@@ -1,14 +1,28 @@
 
 from enum import Enum
 
-class GridDir:
+class GridDir(Enum):
     Left = 1
     Up = 2
     Right = 3
     Down = 4
 
+
+
+
 GridDir.all_dirs = [GridDir.Left, GridDir.Up, GridDir.Right, GridDir.Down]
-    
+
+def get_dir_vector(dir : GridDir) -> tuple:
+    if dir == GridDir.Left:
+        return (-1, 0)
+    if dir == GridDir.Up:
+        return (0, -1)
+    if dir == GridDir.Right:
+        return (1, 0)
+    if dir == GridDir.Down:
+        return (0, 1)
+
+GridDir.get_dir_vector = get_dir_vector 
 
 class Grid:
 
@@ -56,11 +70,11 @@ class Grid:
         if dir == GridDir.Left:
             return x - 1, y
         if dir == GridDir.Up:
-            return x, y - 1
+            return x, y + 1
         if dir == GridDir.Right:
             return x + 1, y
         if dir == GridDir.Down:
-            return x, y + 1
+            return x, y - 1
     
     def walk_in_direction(self, x_start, y_start, dir, include_start_tile = False):
 
