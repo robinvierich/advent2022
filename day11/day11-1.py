@@ -118,10 +118,9 @@ class ThrowAction:
     def __init__(self, target_id) -> None:
         self.target_id = target_id
     
-    def execute(self, monkies, src_id, i_item) -> None:
-        pass
-        #monkies[src_id].items.pop(i_item)
-        #monkies[self.target_id]
+    #def execute(self, monkies, src_id, item) -> None:
+        #monkies[src_id].items.remove(item)
+        #monkies[self.target_id].items.append(item)
     
     def __str__(self) -> str:
         return "throw to {id}".format(id = self.target_id)
@@ -135,7 +134,7 @@ def parse_action(actionstr : str) -> ThrowAction:
 
 
 class Monkey:
-    def __init__(self, id, items, operation, test, test_pass_action, test_fail_action) -> None:
+    def __init__(self, id: int, items: list[Item], operation : Operation, test :DivisiblePredicate, test_pass_action :ThrowAction, test_fail_action:ThrowAction) -> None:
         self.id = id
         self.items = items
         self.operation = operation
@@ -144,7 +143,8 @@ class Monkey:
         self.test_fail_action = test_fail_action
     
     def __str__(self) -> str:
-        return "Monke {id}, {items} - run {operation}, if {test}: {test_pass_action}, else: {test_fail_action}".format(
+        return "Monke {id}, {items}".format(# - run {operation}, if {test}: {test_pass_action}, else: {test_fail_action}".format(
+        #return "Monke {id}, {items} - run {operation}, if {test}: {test_pass_action}, else: {test_fail_action}".format(
             id = self.id,
             items = ", ".join(str(item) for item in self.items),
             operation = str(self.operation),
@@ -156,7 +156,7 @@ class Monkey:
 
 
 def main():
-    lines = read_input_lines(__file__, InputType.SAMPLE_INPUT)
+    lines = read_input_lines(__file__, InputType.REAL_INPUT)
 
     lines_per_monkey = 7
 
@@ -169,7 +169,7 @@ def main():
         monkey_id = parse("Monkey {:d}:\n", lines[i_line_base])[0]
 
         itemsstr = parse("  Starting items: {}\n", lines[i_line_base + 1])[0]
-        items = tuple(Item(int(worry_level_str.strip())) for worry_level_str in itemsstr.split(","))
+        items = list(Item(int(worry_level_str.strip())) for worry_level_str in itemsstr.split(","))
 
         opstr = parse("  Operation: {}\n", lines[i_line_base + 2])[0]
         operation = parse_operation(opstr)
@@ -186,9 +186,55 @@ def main():
         monkey = Monkey(monkey_id, items, operation, test, test_pass_action, test_fail_action)
 
         monkies.append(monkey)
+
     
     print("\n".join(str(monkey) for monkey in monkies))
-    
+
+    num_inspections = {}
+
+    for round in range(20):
+        for monkey in monkies:
+            item_target_ids = {}
+
+            old_values = tuple(item.worry_level for item in monkey.items)
+
+            for item in monkey.items:
+                # perform op (inspect)
+                item.worry_level = monkey.operation.execute(item.worry_level)
+
+                num_inspections[monkey] = num_inspections.setdefault(monkey, 0) + 1
+
+                # divide worry by 3
+                item.worry_level = item.worry_level // 3
+
+                # check test
+                # perform result action
+                if monkey.test.check(item.worry_level):
+                    item_target_ids[item] = monkey.test_pass_action.target_id
+                else:
+                    item_target_ids[item] = monkey.test_fail_action.target_id
+            
+
+            new_values = tuple(item.worry_level for item in monkey.items)
+            
+            for item, target_id in item_target_ids.items():
+                monkey.items.remove(item)
+                monkies[target_id].items.append(item)
+
+            #print("    {}".format(", ".join(str(old) for old in old_values)))
+            #print("    {}".format(", ".join(str(new) for new in new_values)))
+
+            #print("{src} -> {tgts}".format(src = monkey.id, tgts = ", ".join(str(id) for id in item_target_ids.values())))
+
+
+        
+        print("== AFTER ROUND {round} ==".format(round = round + 1))
+
+        print("\n".join(str(monkey) for monkey in monkies))
+        print("")
+
+    for monkey, num in num_inspections.items():
+        print("Monkey {id} inspections: {num}".format(id = monkey.id, num = num))
 
 
 
