@@ -7,7 +7,7 @@ class InputType(Enum):
 def is_empty_line(line):
     return line.strip() == "" 
 
-def read_input_lines(executing_file_path, input_type):
+def read_input_lines(executing_file_path, input_type) -> list[str]:
 
     input_filename = ""
 
