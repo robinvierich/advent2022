@@ -26,7 +26,7 @@ GridDir.get_dir_vector = get_dir_vector
 
 class Grid:
 
-    def __init__(self, width, height, default_tile_val = None) -> None:
+    def __init__(self, width : int, height : int, default_tile_val = None) -> None:
         self.data = [default_tile_val] * width * height
 
         self.stride = width
@@ -63,7 +63,8 @@ class Grid:
 
     def enumerate_grid(self):
         for y in range(self.height):
-            yield self.enumerate_row(y)
+            for x in range(self.width):
+                yield x, y, self.get_tile(x, y)
 
 
     def get_next_loc_in_dir(self, x, y, dir):
