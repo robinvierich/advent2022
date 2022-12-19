@@ -7,7 +7,15 @@ class GridDir(Enum):
     Right = 3
     Down = 4
 
-
+    def get_dir_vector(self) -> tuple:
+        if self == GridDir.Left:
+            return (-1, 0)
+        if self == GridDir.Up:
+            return (0, -1)
+        if self == GridDir.Right:
+            return (1, 0)
+        if self == GridDir.Down:
+            return (0, 1)
 
 
 GridDir.all_dirs = [GridDir.Left, GridDir.Up, GridDir.Right, GridDir.Down]
@@ -22,7 +30,6 @@ def get_dir_vector(dir : GridDir) -> tuple:
     if dir == GridDir.Down:
         return (0, 1)
 
-GridDir.get_dir_vector = get_dir_vector 
 
 class Grid:
 

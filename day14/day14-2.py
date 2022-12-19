@@ -40,6 +40,32 @@ def v_add(v1, v2):
     return tuple(v1i + v2i for v1i, v2i in zip(v1, v2))
 
 
+from PIL import Image, ImageTransform
+
+
+def get_tile_color(tile):
+    if tile == TileContents.Nothing:
+        return (0, 0, 0)
+    elif tile == TileContents.Rock:
+        return (255, 0, 0)
+    elif tile == TileContents.Sand:
+        return (255, 128, 128)
+    elif tile == TileContents.Spawner:
+        return (0, 255, 0)
+
+def create_grid_image(g: Grid):
+
+    img = Image.new("RGB", (g.width, g.height), "black")
+    pixels = img.load()
+
+    for x, y, tile in g.enumerate_grid():
+        pixels[x, y] = get_tile_color(tile)
+    
+    
+    return img.resize((g.width * 32, g.height * 32), resample=Image.Resampling.NEAREST)
+        
+
+
 def main():
     in_lines = read_input_lines(__file__, InputType.REAL_INPUT)
 
@@ -71,18 +97,25 @@ def main():
     print(xmax, ymax)
 
 
-    # add 2 here to pad sides
-    grid_width = xmax - xmin + 1 + 2
-    grid_height = ymax - ymin + 1
+
+    floor_offset = 2
+    # add 2 here to accomodate the infinite floor
+    grid_height = ymax - ymin + 1 + (floor_offset - 1)
+
+    width_padding = (grid_height)
+
+    grid_width = xmax - xmin + 1 + width_padding * 2
+
+
 
     # transform paths to make using Grid class possible
     # + 1 to pad sides
-    paths = list(tuple((x - xmin + 1, y - ymin) for x, y in path) for path in input_paths) 
+    paths = list(tuple((x - xmin + width_padding, y - ymin) for x, y in path) for path in input_paths) 
 
     grid = Grid(grid_width, grid_height, TileContents.Nothing)
 
     
-    sand_start_loc = (input_sand_start_loc[0] - xmin + 1, input_sand_start_loc[1] - ymin)
+    sand_start_loc = (input_sand_start_loc[0] - xmin + width_padding, input_sand_start_loc[1] - ymin)
 
     grid.set_tile(*sand_start_loc, TileContents.Spawner)
 
@@ -111,9 +144,10 @@ def main():
     
     print(grid)
 
-    ybottom = grid.height
+    images = []
 
-    sand_fell_below_bottom = False
+    images.append(create_grid_image(grid))
+
 
     down_vec = GridDir.Down.get_dir_vector()
     left_vec = GridDir.Left.get_dir_vector()
@@ -124,24 +158,25 @@ def main():
 
     num_sand_particles = 0
 
+    sand_pyramid_complete = False
 
-    while not sand_fell_below_bottom:
+    while not sand_pyramid_complete:
 
-        num_sand_particles += 1
+
         sand_loc = sand_start_loc
+        num_sand_particles += 1
+
 
         i_move_vec = 0
 
-        while i_move_vec < len(valid_movement_vecs):
+        moved = False
+
+        while i_move_vec < len(valid_movement_vecs): 
 
             move_vec = valid_movement_vecs[i_move_vec]
             next_loc = v_add(sand_loc, move_vec)
 
-            if next_loc[1] >= ybottom:
-                sand_fell_below_bottom = True
-                break
-
-            can_move = grid.is_valid_loc(*next_loc) and grid.get_tile(*next_loc) == TileContents.Nothing
+            can_move = sand_loc[1] != (grid.height - 1) and grid.get_tile(*next_loc) == TileContents.Nothing
 
             if can_move:
                 if sand_loc != sand_start_loc:
@@ -151,29 +186,32 @@ def main():
 
                 sand_loc = next_loc
                 i_move_vec = 0
+                moved = True
             else:
                 i_move_vec += 1
+
+        
+        if not moved:
+            sand_pyramid_complete = True
             
           
         
         #print (grid)
+        #print ("")
+
+        #images.append(create_grid_image(grid))
     
-    # final sand particle doesn't count, it fell below the bottom
-    num_sand_particles -= 1
-    
+
+    print (grid)
+
+    images.append(create_grid_image(grid))
+
+    images[0].save('day-14-debug_image.gif', save_all=True, append_images=images[1:], optimize=False, duration=40)
+
+   
+
     print ("num sand particles: {}".format(num_sand_particles))
 
-
-        
-
-
-           
-        
-
-
-
-    
-        
 
           
 
