@@ -103,3 +103,53 @@ class Grid:
             lines.append(" ".join(str(self.get_tile(x, y)) for x in range(self.width)))
 
         return "\n".join(lines)
+
+
+class DynamicGrid:
+
+    def __init__(self) -> None:
+        self.xmin, self.ymin = 0,0
+        self.xmax, self.ymax = 0,0
+        
+        self.tileset = {}
+
+
+    def get_tile(self, x, y):
+        return self.tileset.get((x, y))
+
+    
+    def extend_bounds_to_include_pt(self, x, y):
+        self.xmin, self.ymin = min(x, self.xmin), min(y, self.ymin)
+        self.xmax, self.ymax = max(x, self.xmax), max(y, self.ymax)
+
+
+    def set_tile(self, x, y, tile):
+        self.extend_bounds_to_include_pt(x, y)
+
+        self.tileset[(x,y)] = tile
+
+
+    def enumerate_tiles(self):
+        for y in range(self.ymin, self.ymax + 1):
+            for x in range(self.xmin, self.xmax + 1):
+                yield x, y, self.get_tile(x, y)
+
+    def __str__(self) -> str:
+        none_str = "."
+
+        lines = []
+        for y in range(self.ymin, self.ymax + 1):
+            line = []
+            for x in range(self.xmin, self.xmax + 1):
+                tile = self.get_tile(x, y)
+                if tile is None:
+                    line.append(none_str)
+                else:
+                    line.append(str(tile))
+            
+            lines.append("".join(line))
+        
+        return "\n".join(lines)
+        
+
+
